@@ -1,6 +1,6 @@
 # Railway Deployment Template
 
-This guide explains how to deploy Rodex on [Railway](https://railway.app) using the project template files added in this repository.
+This guide explains how to deploy Rodex on [Railway](https://railway.app) using the project template files added in this repository. For a higher-level primer on Railway templates—including marketplace benefits and the updatable templates flow—refer to [`railway-templates-overview.md`](./railway-templates-overview.md).
 
 ## Overview
 
