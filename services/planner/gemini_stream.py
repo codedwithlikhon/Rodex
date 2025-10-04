@@ -44,6 +44,7 @@ class GeminiStreamConfig:
     max_retries: int = 3
     backoff_base: float = 1.0
     backoff_max: float = 30.0
+    fallback_endpoints: tuple[str, ...] = dataclasses.field(default_factory=tuple)
     client_options: Optional[Mapping[str, Any]] = None
 
 
@@ -247,12 +248,21 @@ class GeminiStreamClient:
 
         attempt = 0
         last_error: Exception | None = None
+        endpoints: list[str | None] = []
+        if self._config.endpoint:
+            endpoints.append(self._config.endpoint)
+        endpoints.extend(self._config.fallback_endpoints)
+        if not endpoints:
+            endpoints.append(None)
 
         while True:
             queue: asyncio.Queue[GeminiStreamEvent] = asyncio.Queue()
             heartbeat_task: asyncio.Task[None] | None = None
+            endpoint_index = min(attempt, len(endpoints) - 1)
+            attempt_endpoint = endpoints[endpoint_index]
+            attempt_config = dataclasses.replace(self._config, endpoint=attempt_endpoint)
             pump_task = asyncio.create_task(
-                self._pump_events(factory, request, queue),
+                self._pump_events(attempt_config, factory, request, queue),
                 name="gemini-stream-pump",
             )
 
@@ -296,6 +306,7 @@ class GeminiStreamClient:
                 attempt=attempt,
                 delay=delay,
                 error=str(last_error) if last_error else None,
+                endpoint=attempt_endpoint,
             )
             await asyncio.sleep(delay)
 
@@ -303,12 +314,13 @@ class GeminiStreamClient:
 
     async def _pump_events(
         self,
+        config: GeminiStreamConfig,
         factory: Callable[[GeminiStreamConfig, GeminiGenerateRequest], StreamingTransport],
         request: GeminiGenerateRequest,
         queue: asyncio.Queue[GeminiStreamEvent],
     ) -> None:
         try:
-            transport = factory(self._config, request)
+            transport = factory(config, request)
             async with transport:
                 async for event in transport.iter_messages():
                     await queue.put(event)
