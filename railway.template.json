@@ -1,6 +1,15 @@
 {
   "$schema": "https://railway.app/railway.schema.json",
   "name": "Rodex - Autonomous Web Automation",
+
+  "description": "AI-powered task planning and browser automation with Gemini and Playwright.",
+  "icon": "https://raw.githubusercontent.com/codedwithlikhon/Rodex/main/docs/assets/icons/rodex-template-icon.svg",
+  "tags": [
+    "automation",
+    "ai",
+    "playwright",
+    "python"
+  ],
   "description": "AI-powered web automation platform with Gemini and Playwright.",
   "icon": "🤖",
   "tags": ["automation", "ai", "playwright", "python"],
@@ -42,6 +51,10 @@
         },
         "DATABASE_URL": "${{postgres.DATABASE_URL}}",
         "REDIS_URL": "${{redis.REDIS_URL}}",
+
+        "AUTOMATION_URL": "http://${{automation.RAILWAY_PRIVATE_DOMAIN}}"
+      },
+      "icon": "https://raw.githubusercontent.com/codedwithlikhon/Rodex/main/docs/assets/icons/rodex-template-icon.svg"
         "AUTOMATION_URL": "${{automation.RAILWAY_PRIVATE_DOMAIN}}"
       }
     },
@@ -58,7 +71,7 @@
         "buildCommand": "pip install -e ../../.[automation] && npx playwright install-deps && npx playwright install chromium"
       },
       "deploy": {
-        "startCommand": "python -m services.automation.main",
+        "startCommand": "python - services.automation.main",
         "healthcheckPath": "/health",
         "restartPolicyType": "ON_FAILURE",
         "restartPolicyMaxRetries": 10
@@ -84,7 +97,8 @@
           "name": "playwright-cache",
           "mountPath": "/data"
         }
-      ]
+      ],
+      "icon": "https://raw.githubusercontent.com/codedwithlikhon/Rodex/main/docs/assets/icons/rodex-automation-icon.svg"
     },
     "postgres": {
       "name": "PostgreSQL",
@@ -93,11 +107,13 @@
         "POSTGRES_DB": "rodex",
         "POSTGRES_USER": "rodex",
         "POSTGRES_PASSWORD": "${{secret(32)}}"
-      }
+      },
+      "icon": "https://raw.githubusercontent.com/codedwithlikhon/Rodex/main/docs/assets/icons/rodex-database-icon.svg"
     },
     "redis": {
       "name": "Redis Cache",
-      "template": "redis"
+      "template": "redis",
+      "icon": "https://raw.githubusercontent.com/codedwithlikhon/Rodex/main/docs/assets/icons/rodex-cache-icon.svg"
     }
   }
 }

@@ -1,0 +1,17 @@
+<svg width="256" height="256" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="automationGradient" x1="36" y1="52" x2="220" y2="204" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#00D1FF" />
+      <stop offset="1" stop-color="#0061FF" />
+    </linearGradient>
+    <filter id="automationShadow" x="12" y="28" width="232" height="232" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="10" stdDeviation="14" flood-opacity="0.16" />
+    </filter>
+  </defs>
+  <g filter="url(#automationShadow)">
+    <path d="M128 48C83.8172 48 48 83.8172 48 128C48 172.183 83.8172 208 128 208C172.183 208 208 172.183 208 128C208 83.8172 172.183 48 128 48ZM128 184C97.4903 184 72 158.51 72 128C72 97.4903 97.4903 72 128 72C158.51 72 184 97.4903 184 128C184 158.51 158.51 184 128 184Z" fill="url(#automationGradient)" />
+  </g>
+  <path d="M152 104L176 128L152 152" stroke="#061224" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" />
+  <path d="M104 152L80 128L104 104" stroke="#061224" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" />
+  <path d="M128 96V160" stroke="#061224" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" />
+</svg>

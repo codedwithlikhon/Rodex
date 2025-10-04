@@ -1,0 +1,24 @@
+<svg width="256" height="256" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="rodexGradient" x1="52" y1="36" x2="212" y2="220" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#5B8CFF" />
+      <stop offset="0.5" stop-color="#7F5BFF" />
+      <stop offset="1" stop-color="#FF6AD5" />
+    </linearGradient>
+    <radialGradient id="rodexGlow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(128 128) scale(120)">
+      <stop stop-color="#FFFFFF" stop-opacity="0.35" />
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0" />
+    </radialGradient>
+    <filter id="shadow" x="26" y="18" width="204" height="240" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-opacity="0.18" />
+    </filter>
+  </defs>
+  <g filter="url(#shadow)">
+    <path d="M128 36L202 78V178L128 220L54 178V78L128 36Z" fill="url(#rodexGradient)" />
+  </g>
+  <circle cx="128" cy="128" r="90" fill="url(#rodexGlow)" />
+  <path d="M168 116C168 102.745 157.255 92 144 92H124C110.745 92 100 102.745 100 116V124C100 137.255 110.745 148 124 148H140C143.314 148 146 150.686 146 154C146 157.314 143.314 160 140 160H112" stroke="#0B1026" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" />
+  <circle cx="104" cy="170" r="10" fill="#0B1026" />
+  <circle cx="176" cy="154" r="10" fill="#0B1026" />
+  <path d="M176 154C189.255 154 200 143.255 200 130C200 116.745 189.255 106 176 106" stroke="#0B1026" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" />
+</svg>
