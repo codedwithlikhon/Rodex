@@ -1,0 +1,16 @@
+[phases.setup]
+nixPkgs = ["python311", "nodejs_20"]
+
+[phases.build]
+cmds = [
+  "python -m pip install --upgrade pip",
+  "pip install -e .[planner,automation]",
+  "python -m playwright install-deps",
+  "python -m playwright install chromium"
+]
+
+[variables]
+PLAYWRIGHT_BROWSERS_PATH = "/data/playwright/browsers"
+PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD = "0"
+ENVIRONMENT = "production"
+LOG_LEVEL = "INFO"

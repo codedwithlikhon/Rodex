@@ -126,3 +126,13 @@ def test_submit_prompt_validation_errors(invalid_payload: dict[str, str]) -> Non
 
     # 404 for unknown branches, 400 for empty prompt
     assert response.status_code in {400, 404}
+
+
+def test_health_endpoint_returns_ok_status() -> None:
+    client = TestClient(create_app(_build_store()))
+
+    response = client.get("/health")
+
+    assert response.status_code == 200
+    assert response.json() == {"status": "ok"}
+    assert response.headers["Cache-Control"] == "no-store"

@@ -261,6 +261,15 @@ def create_app(data_store: LandingDataStore | None = None) -> FastAPI:
     store = data_store or LandingDataStore()
     app = FastAPI(title="Rodex Landing API", version="1.0.0")
 
+    @app.get("/health")
+    def health_check() -> JSONResponse:
+        """Return a lightweight status response for platform health checks."""
+
+        return JSONResponse(
+            content={"status": "ok"},
+            headers={"Cache-Control": "no-store"},
+        )
+
     @app.get("/api/workspaces", response_model=WorkspacesResponse)
     def get_workspaces() -> JSONResponse:
         response_model = WorkspacesResponse(workspaces=store.workspaces())

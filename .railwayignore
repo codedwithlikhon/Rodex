@@ -1,0 +1,17 @@
+# Ignore development artifacts that do not need to be uploaded to Railway builds
+.git
+.github
+pytest.ini
+reports/
+.tests
+__pycache__/
+*.pyc
+*.pyo
+.env
+.env.*
+.venv/
+.cache/
+.mypy_cache/
+.pytest_cache/
+node_modules/
+docs/
