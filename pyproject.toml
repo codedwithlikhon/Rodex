@@ -6,6 +6,8 @@ readme = "README.md"
 requires-python = ">=3.11"
 authors = [{ name = "Rodex Team" }]
 dependencies = [
+  "fastapi>=0.111",
+  "httpx>=0.27",
   "structlog>=23.2",
   "pydantic>=2.5",
   "pydantic-settings>=2.0",
