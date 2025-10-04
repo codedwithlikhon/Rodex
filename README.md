@@ -1,3 +1,4 @@
+
 # Rodex Autonomous Web Automation Platform
 
 This repository contains the scaffolding and initial planning artifacts for the Rodex autonomous web automation platform. The immediate focus is resolving the Gemini streaming reliability issues while laying down infrastructure for the Playwright-based automation engine.
@@ -24,3 +25,7 @@ This repository contains the scaffolding and initial planning artifacts for the 
 
 ## Next Steps
 Refer to `docs/initial_development_plan.md` for a detailed 48-hour work breakdown and prioritized tasks.
+
+# Rodex
+
+This repository houses evaluation artifacts for runtime environments supporting AI-generated code execution. See [`reports/runtime_evaluation.md`](reports/runtime_evaluation.md) for the full comparison of WebContainer, managed containers, and serverless functions.
