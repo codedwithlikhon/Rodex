@@ -2,9 +2,14 @@
 
 from __future__ import annotations
 
+import json
 import os
+from importlib import resources
+from pathlib import Path
 import unittest
+from unittest import mock
 
+import services.planner.project_settings as project_settings_module
 from services.planner.project_settings import GeminiEnvironment, ProjectSettings
 
 
@@ -70,6 +75,30 @@ class GeminiEnvironmentTests(unittest.TestCase):
         self.assertEqual(config.max_retries, 6)
         self.assertEqual(config.backoff_base, 2.5)
         self.assertEqual(config.backoff_max, 120.0)
+
+
+class ProjectSettingsLoadTests(unittest.TestCase):
+    """Validate loading behaviour for packaged defaults."""
+
+    def test_project_settings_manifest_available_as_packaged_resource(self) -> None:
+        packaged = resources.files("services.planner._data").joinpath("project_settings.json")
+        self.assertTrue(packaged.is_file())
+
+        with packaged.open("r", encoding="utf-8") as handle:
+            payload = json.load(handle)
+
+        with Path("configs/project_settings.json").open("r", encoding="utf-8") as handle:
+            repo_payload = json.load(handle)
+
+        self.assertEqual(payload, repo_payload)
+
+    def test_load_falls_back_to_packaged_defaults(self) -> None:
+        missing_path = Path("/nonexistent/configs/project_settings.json")
+        with mock.patch.object(project_settings_module, "_CONFIG_PATH", missing_path):
+            settings = ProjectSettings.load()
+
+        self.assertEqual(settings.deployment.name, "Resilient Gemini Environment")
+        self.assertEqual(settings.deployment.environment, "production")
 
 
 if __name__ == "__main__":  # pragma: no cover

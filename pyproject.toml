@@ -29,3 +29,6 @@ automation = [
 [tool.setuptools.packages.find]
 where = ["services"]
 
+[tool.setuptools.package-data]
+"services.planner" = ["_data/*.json"]
+
