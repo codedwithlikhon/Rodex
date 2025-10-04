@@ -1,7 +1,7 @@
 {
   "$schema": "https://railway.app/railway.schema.json",
   "name": "Rodex - Autonomous Web Automation",
-  "description": "AI-powered task planning and browser automation with Gemini and Playwright.",
+  "description": "AI-powered web automation platform with Gemini and Playwright.",
   "icon": "🤖",
   "tags": ["automation", "ai", "playwright", "python"],
   "repository": "https://github.com/codedwithlikhon/Rodex",
@@ -16,12 +16,13 @@
       "rootDirectory": "/services/planner",
       "build": {
         "builder": "NIXPACKS",
-        "buildCommand": "pip install -e ../../.[planner] && npx playwright install chromium"
+        "buildCommand": "pip install -e ../../.[planner]"
       },
       "deploy": {
-        "startCommand": "uvicorn landing_api:create_app --host 0.0.0.0 --port ${PORT:-8080}",
+        "startCommand": "uvicorn services.planner.main:app --host 0.0.0.0 --port ${PORT:-8080}",
         "healthcheckPath": "/health",
-        "restartPolicyType": "ON_FAILURE"
+        "restartPolicyType": "ON_FAILURE",
+        "restartPolicyMaxRetries": 10
       },
       "env": {
         "SERVICE_NAME": {
@@ -41,7 +42,7 @@
         },
         "DATABASE_URL": "${{postgres.DATABASE_URL}}",
         "REDIS_URL": "${{redis.REDIS_URL}}",
-        "AUTOMATION_URL": "http://${{automation.RAILWAY_PRIVATE_DOMAIN}}"
+        "AUTOMATION_URL": "${{automation.RAILWAY_PRIVATE_DOMAIN}}"
       }
     },
     "automation": {
@@ -57,9 +58,10 @@
         "buildCommand": "pip install -e ../../.[automation] && npx playwright install-deps && npx playwright install chromium"
       },
       "deploy": {
-        "startCommand": "uvicorn main:app --host 0.0.0.0 --port ${PORT:-8081}",
+        "startCommand": "python -m services.automation.main",
         "healthcheckPath": "/health",
-        "restartPolicyType": "ON_FAILURE"
+        "restartPolicyType": "ON_FAILURE",
+        "restartPolicyMaxRetries": 10
       },
       "env": {
         "SERVICE_NAME": {
@@ -73,7 +75,7 @@
         },
         "DATABASE_URL": "${{postgres.DATABASE_URL}}",
         "REDIS_URL": "${{redis.REDIS_URL}}",
-        "PLANNER_URL": "http://${{planner.RAILWAY_PRIVATE_DOMAIN}}",
+        "PLANNER_URL": "${{planner.RAILWAY_PRIVATE_DOMAIN}}",
         "PLAYWRIGHT_BROWSERS_PATH": "/data/browsers",
         "HEADLESS": "true"
       },

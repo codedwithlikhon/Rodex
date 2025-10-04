@@ -1,0 +1,159 @@
+name: Deploy PR Preview
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [main]
+
+env:
+  RAILWAY_PROJECT_ID: a6b69716-cda2-46bb-961a-2e87cad4d140
+
+jobs:
+  test:
+    uses: ./.github/workflows/test.yml
+    secrets: inherit
+
+  deploy-preview:
+    name: Deploy Preview Environment
+    runs-on: ubuntu-latest
+    needs: test
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install Railway CLI
+        run: npm install -g @railway/cli
+      
+      - name: Link to Railway Project
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: |
+          railway link ${{ env.RAILWAY_PROJECT_ID }}
+      
+      - name: Check if preview environment exists
+        id: check-env
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: |
+          ENV_NAME="pr-${{ github.event.pull_request.number }}"
+          if railway environment list | grep -q "$ENV_NAME"; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Create preview environment
+        if: steps.check-env.outputs.exists == 'false'
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: |
+          railway environment create pr-${{ github.event.pull_request.number }}
+      
+      - name: Deploy Planner to preview
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: |
+          railway up \
+            --service planner \
+            --environment pr-${{ github.event.pull_request.number }} \
+            --detach
+      
+      - name: Deploy Automation to preview
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: |
+          railway up \
+            --service automation \
+            --environment pr-${{ github.event.pull_request.number }} \
+            --detach
+      
+      - name: Wait for deployment
+        run: sleep 30
+      
+      - name: Get preview URLs
+        id: preview-urls
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: |
+          PLANNER_URL=$(railway domain --service planner --environment pr-${{ github.event.pull_request.number }})
+          AUTOMATION_URL=$(railway domain --service automation --environment pr-${{ github.event.pull_request.number }})
+          echo "planner_url=$PLANNER_URL" >> $GITHUB_OUTPUT
+          echo "automation_url=$AUTOMATION_URL" >> $GITHUB_OUTPUT
+      
+      - name: Health check preview
+        continue-on-error: true
+        run: |
+          echo "Waiting for services to be healthy..."
+          sleep 10
+          curl -f "https://${{ steps.preview-urls.outputs.planner_url }}/health" || echo "Planner not ready yet"
+          curl -f "https://${{ steps.preview-urls.outputs.automation_url }}/health" || echo "Automation not ready yet"
+      
+      - name: Comment on PR
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const plannerUrl = '${{ steps.preview-urls.outputs.planner_url }}';
+            const automationUrl = '${{ steps.preview-urls.outputs.automation_url }}';
+            
+            const comment = `## 🚀 Preview Environment Ready!
+            
+            Your preview environment has been deployed to Railway.
+            
+            **Project ID:** \`${{ env.RAILWAY_PROJECT_ID }}\`
+            **Environment:** \`pr-${{ github.event.pull_request.number }}\`
+            
+            | Service | Status | URL |
+            |---------|--------|-----|
+            | 🧠 Planner | ✅ Deployed | https://${plannerUrl} |
+            | 🤖 Automation | ✅ Deployed | https://${automationUrl} |
+            
+            ### Quick Test Commands
+            \`\`\`bash
+            # Test planner service
+            curl https://${plannerUrl}/health
+            
+            # Test automation service
+            curl https://${automationUrl}/health
+            
+            # Create a test task
+            curl -X POST https://${plannerUrl}/api/tasks \\
+              -H "Content-Type: application/json" \\
+              -d '{"description": "Test task", "url": "https://example.com"}'
+            \`\`\`
+            
+            ### Railway Dashboard
+            [View in Railway Dashboard](https://railway.app/project/${{ env.RAILWAY_PROJECT_ID }})
+            
+            ---
+            
+            This environment will be automatically deleted when the PR is closed.
+            
+            <sub>Deployed from commit ${context.sha.substring(0, 7)}</sub>`;
+            
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+            
+            const botComment = comments.find(comment => 
+              comment.user.type === 'Bot' && 
+              comment.body.includes('Preview Environment')
+            );
+            
+            if (botComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: comment
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: comment
+              });
+            }
+

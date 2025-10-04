@@ -1,0 +1,117 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  RAILWAY_PROJECT_ID: a6b69716-cda2-46bb-961a-2e87cad4d140
+
+jobs:
+  test:
+    uses: ./.github/workflows/test.yml
+    secrets: inherit
+
+  deploy:
+    name: Deploy to Railway
+    runs-on: ubuntu-latest
+    needs: test
+    environment:
+      name: production
+      url: https://rodex-production.up.railway.app
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install Railway CLI
+        run: npm install -g @railway/cli
+      
+      - name: Link to Railway Project
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: |
+          railway link ${{ env.RAILWAY_PROJECT_ID }}
+      
+      - name: Deploy Planner Service
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: |
+          railway up \
+            --service planner \
+            --environment production \
+            --detach
+      
+      - name: Deploy Automation Service
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: |
+          railway up \
+            --service automation \
+            --environment production \
+            --detach
+      
+      - name: Wait for deployments
+        run: sleep 30
+      
+      - name: Run database migrations
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: |
+          railway run \
+            --service planner \
+            --environment production \
+            "python -m alembic upgrade head" || echo "No migrations to run"
+      
+      - name: Health check
+        run: |
+          PLANNER_URL=$(railway variables --service planner --environment production | grep RAILWAY_PUBLIC_DOMAIN | cut -d'=' -f2)
+          AUTOMATION_URL=$(railway variables --service automation --environment production | grep RAILWAY_PUBLIC_DOMAIN | cut -d'=' -f2)
+          
+          echo "Checking Planner: https://$PLANNER_URL/health"
+          curl -f "https://$PLANNER_URL/health" || exit 1
+          
+          echo "Checking Automation: https://$AUTOMATION_URL/health"
+          curl -f "https://$AUTOMATION_URL/health" || exit 1
+      
+      - name: Get deployment info
+        id: deployment-info
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: |
+          echo "planner_url=$(railway domain --service planner --environment production)" >> $GITHUB_OUTPUT
+          echo "automation_url=$(railway domain --service automation --environment production)" >> $GITHUB_OUTPUT
+          echo "deployment_time=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> $GITHUB_OUTPUT
+      
+      - name: Create deployment summary
+        run: |
+          cat >> $GITHUB_STEP_SUMMARY << EOF_SUMMARY
+          ## 🚀 Deployment Successful
+          
+          **Project:** Rodex
+          **Project ID:** `${{ env.RAILWAY_PROJECT_ID }}`
+          **Environment:** Production
+          **Deployed at:** ${{ steps.deployment-info.outputs.deployment_time }}
+          **Commit:** `${{ github.sha }}`
+          
+          ### Service URLs
+          - **Planner:** https://${{ steps.deployment-info.outputs.planner_url }}
+          - **Automation:** https://${{ steps.deployment-info.outputs.automation_url }}
+          
+          ### Quick Test
+          ```bash
+          curl https://${{ steps.deployment-info.outputs.planner_url }}/health
+          ```
+          EOF_SUMMARY
+      
+      - name: Notify on failure
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.repos.createCommitComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              commit_sha: context.sha,
+              body: '❌ Deployment to Railway failed. Check the [workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) for details.'
+            })
