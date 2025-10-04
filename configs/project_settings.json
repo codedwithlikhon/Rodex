@@ -1,0 +1,59 @@
+{
+  "version": "2024-06-01",
+  "updated_at": "2024-06-01T00:00:00Z",
+  "source": {
+    "repository": "rodex-platform",
+    "branch": "main",
+    "description": "Deployment generated from current source tree with refreshed project configuration."
+  },
+  "deployment": {
+    "name": "Resilient Gemini Environment",
+    "slug": "resilient-gemini-environment",
+    "environment": "production",
+    "description": "Production multi-agent AI coding platform deployment on Vercel Sandbox with Gemini failover safeguards.",
+    "runtime": {
+      "provider": "vercel",
+      "product": "sandbox",
+      "region": "iad1"
+    },
+    "features": [
+      "multi-agent-orchestration",
+      "gemini-stream-failover",
+      "vercel-sandbox-runtime",
+      "otel-telemetry"
+    ],
+    "environment_variables": {
+      "RODEX_ENV": "production",
+      "TELEMETRY_EXPORTER": "otlp",
+      "REDIS_URL": "redis://rodex-production-cache:6379/0",
+      "GEMINI_MODEL": "models/gemini-1.5-pro",
+      "GEMINI_STREAM_ENDPOINT": "wss://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:streamGenerateContent",
+      "GEMINI_FALLBACK_ENDPOINTS": "wss://us-central1-generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:streamGenerateContent,wss://europe-west4-generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:streamGenerateContent",
+      "GEMINI_REQUEST_TIMEOUT": "45",
+      "GEMINI_HEARTBEAT_INTERVAL": "10",
+      "GEMINI_MAX_RETRIES": "4",
+      "GEMINI_BACKOFF_BASE": "1.5",
+      "GEMINI_BACKOFF_MAX": "60"
+    }
+  },
+  "gemini": {
+    "model": "models/gemini-1.5-pro",
+    "primary_endpoint": "wss://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:streamGenerateContent",
+    "fallback_endpoints": [
+      "wss://us-central1-generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:streamGenerateContent",
+      "wss://europe-west4-generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:streamGenerateContent"
+    ],
+    "request_timeout_seconds": 45.0,
+    "heartbeat_interval_seconds": 10.0,
+    "max_retries": 4,
+    "backoff": {
+      "factor": 1.5,
+      "max_delay_seconds": 60.0
+    }
+  },
+  "observability": {
+    "logs": "gcp-cloud-logging",
+    "metrics": "otel-http",
+    "traces": "otel-http"
+  }
+}

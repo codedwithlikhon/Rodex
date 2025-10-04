@@ -17,7 +17,10 @@ This repository contains the scaffolding and initial planning artifacts for the 
    pip install -e .[planner,automation]
    ```
 3. Copy `configs/base.env` to `.env` and populate secrets.
-4. Install Playwright browsers:
+4. Review `configs/project_settings.json` for deployment metadata and Gemini
+   defaults. Override via environment variables or secret manager entries when
+   deploying to non-local environments.
+5. Install Playwright browsers:
    ```bash
    npx playwright install-deps
    npx playwright install chromium
