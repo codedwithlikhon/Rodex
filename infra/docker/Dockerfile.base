@@ -1,0 +1,12 @@
+FROM mcr.microsoft.com/playwright/python:v1.43.0-jammy
+
+ENV PYTHONUNBUFFERED=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    UV_SYSTEM_PYTHON=1
+
+RUN useradd --create-home --shell /bin/bash rodex
+USER rodex
+WORKDIR /home/rodex/app
+
+# Placeholder for uv/poetry install once tooling is finalized
+CMD ["bash"]
