@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import importlib.resources as resources
 from pathlib import Path
 from typing import Any, Iterable
 
@@ -13,6 +14,35 @@ from .gemini_stream import GeminiStreamConfig
 
 
 _CONFIG_PATH = Path(__file__).resolve().parents[2] / "configs" / "project_settings.json"
+_RESOURCE_PACKAGE = "services.planner._data"
+_RESOURCE_NAME = "project_settings.json"
+
+
+def _load_payload_from_path(config_path: Path) -> dict[str, Any]:
+    """Return JSON payload loaded from ``config_path``."""
+
+    try:
+        with config_path.open("r", encoding="utf-8") as handle:
+            return json.load(handle)
+    except FileNotFoundError as exc:
+        raise FileNotFoundError(f"Project settings file not found: {config_path}") from exc
+    except json.JSONDecodeError as exc:
+        raise ValueError(f"Invalid JSON in project settings: {config_path}") from exc
+
+
+def _load_packaged_defaults() -> dict[str, Any]:
+    """Return the packaged default project settings payload."""
+
+    resource_path = resources.files(_RESOURCE_PACKAGE).joinpath(_RESOURCE_NAME)
+    try:
+        with resource_path.open("r", encoding="utf-8") as handle:  # type: ignore[attr-defined]
+            return json.load(handle)
+    except FileNotFoundError as exc:  # pragma: no cover - defensive guardrail
+        raise FileNotFoundError(
+            "Packaged project settings resource is missing; reinstall the package."
+        ) from exc
+    except json.JSONDecodeError as exc:  # pragma: no cover - defensive guardrail
+        raise ValueError("Packaged project settings contains invalid JSON.") from exc
 
 
 class BackoffSettings(BaseModel):
@@ -66,16 +96,14 @@ class ProjectSettings(BaseModel):
 
     @classmethod
     def load(cls, path: str | Path | None = None) -> "ProjectSettings":
-        """Load project settings from disk."""
+        """Load project settings from disk or packaged defaults."""
 
-        config_path = Path(path) if path else _CONFIG_PATH
-        try:
-            with config_path.open("r", encoding="utf-8") as handle:
-                payload = json.load(handle)
-        except FileNotFoundError as exc:  # pragma: no cover - defensive
-            raise FileNotFoundError(f"Project settings file not found: {config_path}") from exc
-        except json.JSONDecodeError as exc:  # pragma: no cover - defensive
-            raise ValueError(f"Invalid JSON in project settings: {config_path}") from exc
+        if path is not None:
+            payload = _load_payload_from_path(Path(path))
+        elif _CONFIG_PATH.exists():
+            payload = _load_payload_from_path(_CONFIG_PATH)
+        else:
+            payload = _load_packaged_defaults()
 
         try:
             return cls.model_validate(payload)

@@ -18,8 +18,9 @@ This repository contains the scaffolding and initial planning artifacts for the 
    ```
 3. Copy `configs/base.env` to `.env` and populate secrets.
 4. Review `configs/project_settings.json` for deployment metadata and Gemini
-   defaults. Override via environment variables or secret manager entries when
-   deploying to non-local environments.
+   defaults. The same manifest ships inside the package so runtime environments
+   always have sane defaults; override via environment variables or secret
+   manager entries when deploying to non-local environments.
 5. Install Playwright browsers:
    ```bash
    npx playwright install-deps
