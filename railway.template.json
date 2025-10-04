@@ -2,8 +2,13 @@
   "$schema": "https://railway.app/railway.schema.json",
   "name": "Rodex - Autonomous Web Automation",
   "description": "AI-powered task planning and browser automation with Gemini and Playwright.",
-  "icon": "🤖",
-  "tags": ["automation", "ai", "playwright", "python"],
+  "icon": "https://raw.githubusercontent.com/codedwithlikhon/Rodex/main/docs/assets/icons/rodex-template-icon.svg",
+  "tags": [
+    "automation",
+    "ai",
+    "playwright",
+    "python"
+  ],
   "repository": "https://github.com/codedwithlikhon/Rodex",
   "services": {
     "planner": {
@@ -42,7 +47,8 @@
         "DATABASE_URL": "${{postgres.DATABASE_URL}}",
         "REDIS_URL": "${{redis.REDIS_URL}}",
         "AUTOMATION_URL": "http://${{automation.RAILWAY_PRIVATE_DOMAIN}}"
-      }
+      },
+      "icon": "https://raw.githubusercontent.com/codedwithlikhon/Rodex/main/docs/assets/icons/rodex-template-icon.svg"
     },
     "automation": {
       "name": "Automation Service",
@@ -82,7 +88,8 @@
           "name": "playwright-cache",
           "mountPath": "/data"
         }
-      ]
+      ],
+      "icon": "https://raw.githubusercontent.com/codedwithlikhon/Rodex/main/docs/assets/icons/rodex-automation-icon.svg"
     },
     "postgres": {
       "name": "PostgreSQL",
@@ -91,11 +98,13 @@
         "POSTGRES_DB": "rodex",
         "POSTGRES_USER": "rodex",
         "POSTGRES_PASSWORD": "${{secret(32)}}"
-      }
+      },
+      "icon": "https://raw.githubusercontent.com/codedwithlikhon/Rodex/main/docs/assets/icons/rodex-database-icon.svg"
     },
     "redis": {
       "name": "Redis Cache",
-      "template": "redis"
+      "template": "redis",
+      "icon": "https://raw.githubusercontent.com/codedwithlikhon/Rodex/main/docs/assets/icons/rodex-cache-icon.svg"
     }
   }
 }

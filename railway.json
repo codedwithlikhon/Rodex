@@ -1,13 +1,23 @@
 {
   "$schema": "https://railway.app/railway.schema.json",
-  "build": {
-    "builder": "NIXPACKS",
-    "buildCommand": "python -m pip install --upgrade pip && pip install -e .[planner,automation] && python -m playwright install-deps && python -m playwright install chromium"
-  },
-  "deploy": {
-    "startCommand": "uvicorn services.planner.landing_api:create_app --host 0.0.0.0 --port ${PORT:-8080}",
-    "healthcheckPath": "/health",
-    "restartPolicyType": "ON_FAILURE",
-    "restartPolicyMaxRetries": 10
+  "name": "Rodex Planner",
+  "description": "Deploy the Rodex planner service with Playwright tooling on Railway.",
+  "icon": "https://raw.githubusercontent.com/codedwithlikhon/Rodex/main/docs/assets/icons/rodex-template-icon.svg",
+  "services": {
+    "web": {
+      "name": "Planner Service",
+      "description": "FastAPI planner API backed by Gemini, Playwright, PostgreSQL, and Redis.",
+      "icon": "https://raw.githubusercontent.com/codedwithlikhon/Rodex/main/docs/assets/icons/rodex-template-icon.svg",
+      "build": {
+        "builder": "NIXPACKS",
+        "buildCommand": "python -m pip install --upgrade pip && pip install -e .[planner,automation] && python -m playwright install-deps && python -m playwright install chromium"
+      },
+      "deploy": {
+        "startCommand": "uvicorn services.planner.landing_api:create_app --host 0.0.0.0 --port ${PORT:-8080}",
+        "healthcheckPath": "/health",
+        "restartPolicyType": "ON_FAILURE",
+        "restartPolicyMaxRetries": 10
+      }
+    }
   }
 }
