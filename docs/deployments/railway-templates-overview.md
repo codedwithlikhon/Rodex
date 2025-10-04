@@ -16,6 +16,17 @@ When you publish a template it appears in Railway's public marketplace, making i
 ### Participate in the Kickback Program
 Railway shares 50% of the usage revenue incurred by deployments created from marketplace templates. Publishing and maintaining high-quality templates is therefore both a service to the community and a way to offset your own infrastructure costs.
 
+## Affiliate Program Requirements
+
+If you plan to promote your template through Railway's affiliate program, make sure you satisfy the following guardrails before you start sharing your referral link:
+
+- **Valid Railway account** – Sign up for a Railway account (free) so referral activity can be attributed correctly.
+- **Compliance with Terms of Service** – Ensure your project and promotional material respect Railway's Fair Use Policy and the broader Terms of Service.
+- **High-quality, relevant content** – Keep your template and marketing materials aligned with Railway's mission. Commissions are only paid when referrals become successful customers.
+- **Use the official referral link** – Only signups originating from your unique link qualify for the 15% revenue share, so include it prominently in your outreach.
+
+Adhering to these requirements keeps your affiliate efforts eligible for commissions and signals to Railway that your template is worth featuring in the marketplace.
+
 ## Updatable Templates
 
 Templates that pull source code directly from a GitHub repository can be kept up to date after the initial deployment:
