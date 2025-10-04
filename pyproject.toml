@@ -27,7 +27,8 @@ automation = [
 ]
 
 [tool.setuptools.packages.find]
-where = ["services"]
+where = ["."]
+include = ["services*"]
 
 [tool.setuptools.package-data]
 "services.planner" = ["_data/*.json"]
