@@ -32,18 +32,27 @@ Refer to `docs/initial_development_plan.md` for a detailed 48-hour work breakdow
 
 # Deploy to Railway
 
-[![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/template/YOUR_TEMPLATE_ID)
+[![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/template/rodex?referralCode=YOUR_CODE)
 
-### What gets deployed
-- **Planner Service** – Gemini-powered planning API exposed via FastAPI.
-- **Automation Service** – Playwright automation runtime with shared browser cache.
-- **PostgreSQL** – Primary relational datastore for planner and automation jobs.
-- **Redis** – Shared cache and queue backend.
+## Quick Deploy
 
-### Post-deployment checklist
-1. Set the `GEMINI_API_KEY` secret on the planner service (it propagates to automation).
-2. Confirm that `planner` and `automation` services resolve to each other using their private domains.
-3. Tail the planner logs to verify that health checks succeed before inviting consumers.
+Click the button above to deploy Rodex to Railway. This will create:
+
+- 🧠 Planner Service (Gemini AI orchestration)
+- 🤖 Automation Service (Playwright browser automation)
+- 🗄️ PostgreSQL Database
+- 🚀 Redis Cache
+
+### Post-Deployment Setup
+
+1. Add your Gemini API key in the Railway dashboard.
+2. Services will automatically connect via internal networking.
+3. Access your planner API at the provided Railway URL and verify `/health`.
+
+## Project Information
+
+- **Project ID:** `a6b69716-cda2-46bb-961a-2e87cad4d140`
+- **Railway Dashboard:** [View Project](https://railway.app/project/a6b69716-cda2-46bb-961a-2e87cad4d140)
 
 # Rodex
 
