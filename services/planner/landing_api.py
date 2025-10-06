@@ -255,6 +255,15 @@ class LandingDataStore:
         return PromptResponse(job_id=job_id, accepted_at=datetime.now(timezone.utc))
 
 
+def _key_error_detail(exc: KeyError) -> str:
+    """Return a readable ``HTTPException`` detail for ``KeyError`` instances."""
+
+    if exc.args:
+        first_arg = exc.args[0]
+        return first_arg if isinstance(first_arg, str) else str(first_arg)
+    return str(exc)
+
+
 def create_app(data_store: LandingDataStore | None = None) -> FastAPI:
     """Instantiate the FastAPI application exposing the landing endpoints."""
 
@@ -294,7 +303,10 @@ def create_app(data_store: LandingDataStore | None = None) -> FastAPI:
                 workspace, branch, collection, cursor=cursor
             )
         except KeyError as exc:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=_key_error_detail(exc),
+            ) from exc
         except ValueError as exc:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
 
@@ -310,7 +322,10 @@ def create_app(data_store: LandingDataStore | None = None) -> FastAPI:
         try:
             result = store.create_prompt(submission)
         except KeyError as exc:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=_key_error_detail(exc),
+            ) from exc
         except ValueError as exc:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
 
