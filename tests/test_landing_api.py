@@ -92,6 +92,7 @@ def test_get_tasks_unknown_workspace_returns_404() -> None:
     )
 
     assert response.status_code == 404
+    assert response.json()["detail"] == "workspace_not_found"
 
 
 def test_submit_prompt_returns_job_id() -> None:
@@ -113,19 +114,29 @@ def test_submit_prompt_returns_job_id() -> None:
 
 
 @pytest.mark.parametrize(
-    "invalid_payload",
+    "invalid_payload, expected_status, expected_detail",
     [
-        {"workspace_id": "monorepo", "branch_id": "missing", "mode": "code", "prompt": "text"},
-        {"workspace_id": "monorepo", "branch_id": "main", "mode": "code", "prompt": "   "},
+        (
+            {"workspace_id": "monorepo", "branch_id": "missing", "mode": "code", "prompt": "text"},
+            404,
+            "branch_not_found",
+        ),
+        (
+            {"workspace_id": "monorepo", "branch_id": "main", "mode": "code", "prompt": "   "},
+            400,
+            "prompt_required",
+        ),
     ],
 )
-def test_submit_prompt_validation_errors(invalid_payload: dict[str, str]) -> None:
+def test_submit_prompt_validation_errors(
+    invalid_payload: dict[str, str], expected_status: int, expected_detail: str
+) -> None:
     client = TestClient(create_app(_build_store()))
 
     response = client.post("/api/prompts", json=invalid_payload)
 
-    # 404 for unknown branches, 400 for empty prompt
-    assert response.status_code in {400, 404}
+    assert response.status_code == expected_status
+    assert response.json()["detail"] == expected_detail
 
 
 def test_health_endpoint_returns_ok_status() -> None:
